@@ -65,9 +65,71 @@ function AgregarEquipo(req,res){
         }
     })
 
+
 } 
 
+function editarEquipo(req,res){
+    var parametros =req.body;
+    var nombreEquipo= req.params.nombre;
+
+    if(nombreEquipo==null) return res.status(500).send({error: "debe enviar el nombre del equipo que quiere editar"})
+
+    if (req.user.rol == "Usuario") {
+        idUsuario = req.user.sub;
+    } else if (req.user.rol == "ADMIN") {
+        if (req.params.idUsuario == null) {
+            return res.status(500).send({
+                mensaje: "envie el usuario",
+            });
+        }
+        idUsuario = req.params.idUsuario;
+    }
+
+    Equipo.findOne({ nombre:parametros.nombre, idUsuario: idUsuario},(err, equipoRepetido) => {
+        if(equipoRepetido){
+            return res.status(500).send({ error: "ya hay un equipo con ese nombre, elija otro" });
+        }else{
+            Equipo.findOneAndUpdate({nombre:nombreEquipo,}, (parametros),{new:true}, (err, equipoEditado) => {
+                if (equipoEditado == null)
+                return res.status(500).send({ error: "no se encontró el equipo" });
+            if (err) return res.status(500).send({ mensaje: "Error en la peticion" });
+
+
+            return res.status(200).send({ equipo: equipoEditado });
+            })
+        }
+    })
+
+}
+
+function eliminarEquipo (req,res){
+    var idUsuario;
+    nombreEquipo= req.params.nombre
+    if(req.params.nombre==null) return res.status(500).send({error: "debe enviar el nombre del equipo que eliminará"})
+
+    if (req.user.rol == "Usuario") {
+        idUsuario = req.user.sub;
+    } else if (req.user.rol == "ADMIN") {
+        if (req.params.idUsuario == null) {
+            return res.status(500).send({
+                mensaje: "envie el usuario",
+            });
+        }
+        idUsuario = req.params.idUsuario;
+    }
+    Equipo.findOneAndDelete({nombre:req.params.nombre, idUsuario: idUsuario}, {nombre:req.body.nombre}, (err, equipoEditado) => {
+        if (equipoEditado == null)
+        return res.status(500).send({ error: "no se encontró el equipo" });
+    if (err) return res.status(500).send({ mensaje: "Error en la peticion" });
+
+
+    return res.status(200).send({ equipo: equipoEditado });
+    })
+
+
+}
 module.exports ={
     AgregarEquipo,
-
+    editarEquipo,
+    eliminarEquipo
 }
