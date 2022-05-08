@@ -68,7 +68,7 @@ function AgregarLiga(req,res){
 function editarLiga(req,res){
     var parametros = req.body;
     var idUser= req.params.idUsuario;
-    var modelLiga = new Liga();
+   
 
     if (req.user.rol =='Usuario'){
 
@@ -139,10 +139,68 @@ function editarLiga(req,res){
     
 
 } 
+function eliminarLiga(req,res) {
 
+    if(req.params.nombre==null) 
+    return res.status(500).send({mensaje: "envie el nombre de la liga que desea eliminar"})
+
+
+      var idUsuario;
+
+    if (req.user.rol == "Usuario") {
+        idUsuario = req.user.sub;
+    } else if (req.user.rol == "ADMIN") {
+        if (req.params.idUsuario == null) {
+            return res.status(500).send({
+                mensaje: "envie el usuario",
+            });
+        }
+    }
+
+    Liga.findOneAndDelete(
+        { nombre: req.params.nombre,},
+        (err, ligaEliminada) => {
+            if (ligaEliminada == null)
+                return res.status(500).send({ error: "no se encontró la liga" });
+            if (err) return res.status(500).send({ mensaje: "Error en la peticion" });
+
+            return res.status(200).send({ liga: ligaEliminada });
+        }
+    );
+   
+   
+ 
+}
+
+function obtenerLiga(req,res){
+
+    if (req.user.rol == "Usuario") {
+        idUsuario = req.user.sub;
+    } else if (req.user.rol == "Admin") {
+        if (req.params.idUsuario == null) {
+            return res.status(500).send({
+                mensaje:
+                    "envie el usuario",
+            });
+        }
+        idUsuario = req.params.idUsuario;
+    }
+
+    Liga.find({ idUsuario: idUsuario }, (err, ligasEncontradas) => {
+        if (err) return res.status(500).send({ mensaje: "Error en la peticion" });
+        if (ligasEncontradas == null)
+            return res.status(500).send({ eror: "No se encontraron ligas" });
+        if (ligasEncontradas.length == 0)
+            return res.status(500).send({ eror: "No cuenta con ligas" });
+
+        return res.status(200).send({ ligas: ligasEncontradas });
+    });
+}
 
 
 module.exports ={
     AgregarLiga,
     editarLiga,
+    eliminarLiga,
+    obtenerLiga
 }
