@@ -231,5 +231,5 @@ module.exports ={
     eliminarEquipo,
     verEquiposLiga,
     LigaTabla,
-    generarPdf
+    
 }
