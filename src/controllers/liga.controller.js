@@ -39,7 +39,7 @@ function AgregarLiga(req,res){
 
         Liga.findOne({idUsuario : idUser, nombre: parametros.nombre},(err,LigaEncontrada)=>{
             if(err) return res.status(500).send({message:'error en la peticion'});
-            if(LigaEncontrada.nombre){
+            if(LigaEncontrada){
                 return res.status(500).send({mensaje:'error la liga ya existe'});
 
             }
@@ -108,7 +108,7 @@ function editarLiga(req,res){
 
     }else if (req.user.rol=='ADMIN'){
         if(idUser==null){
-            return res.status(500).send({mensaje:'usted como administrador debe de enviar id de un usuario'})
+            return res.status(500).send({mensaje:'usted como administrador debe de enviar id de una liga'})
         }
 
         Liga.findOne({ nombre: parametros.nombre},(err,LigaEncontrada)=>{

@@ -190,39 +190,7 @@ function LigaTabla(req,res) {
     })
 }
 
-function generarReporte(req,res){
-    var idUsuario;
 
-    if(req.params.liga==null) return res.status(500).send({error: "debe enviar el nombre de que liga quiere generar su reporte"})
-
-
-   
-    if (req.user.rol == "Usuario") {
-        idUsuario = req.user.sub;
-    } else if (req.user.rol == "ADMIN") {
-        if (req.params.idUsuario == null) {
-            return res.status(500).send({
-                mensaje: "envie el usuario",
-            });
-        }
-        idUsuario = req.params.idUsuario;
-    }
-
-    Liga.findOne({nombre: req.params.liga, idUsuario: idUsuario}, (err, ligaEncontrada)=>{
-        if(!ligaEncontrada){
-            return res.status(500).send({ error: "no se encontró la liga" });
-        }else{
-            Equipo.find({idUsuario: idUsuario, idLiga: ligaEncontrada._id}, (err, equiposEncontrados)=>{
-                if(equiposEncontrados.length==0) return res.status(500).send({ mensaje: "no cuenta con equipos en esta liga" });
-                if (err) return res.status(500).send({ mensaje: "Error en la peticion" });
-
-
-                generarPdf(req.params.liga,equiposEncontrados)
-                return res.status(200).send({mensaje: "reporte generado en la carpeta reportes"})
-            }).sort({ puntos: -1})
-        }
-    })
-}
 
 
 module.exports ={
